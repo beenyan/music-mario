@@ -20,7 +20,7 @@ class Player {
     this.image = art1.get(imgPosition.x, imgPosition.y, this.imageSize.x, this.imageSize.y);
   }
   draw() {
-    if (++this.stepCount % 10 === 0) this.setup();
+    if (start && ++this.stepCount % 10 === 0) this.setup();
     image(this.image, this.position.x, this.position.y);
   }
   move() {
@@ -114,6 +114,7 @@ class Floor {
   }
 }
 
+let start;
 let volumeBar;
 let frequencyBar;
 let mic;
@@ -132,6 +133,7 @@ function preload() {
 }
 
 function setup() {
+  start = false;
   angleMode(DEGREES);
   distance = 0;
   createCanvas(int(windowWidth * 0.9), int(windowHeight * 0.9));
@@ -157,10 +159,22 @@ function setup() {
 }
 
 function update() {
+  if (!start) {
+    return;
+  }
   // 檢測音量
   let vol = map(mic.getLevel(), 0, 0.1, 0, 20);
   volumeBar.val = vol;
   if (vol > 0.5) player.jump(vol);
+
+  // 檢測音調
+  const frequencyVal = fft.getCentroid();
+  frequencyBar.val = map(frequencyVal, 0, 5000, 0, 20);
+  const spectralCentroid = map(frequencyVal, 0, 5000, 1, 1.1);
+  textAlign(LEFT);
+  text(round(fft.getCentroid()) + 'hz', 10, 160);
+  translate((width - width * spectralCentroid) / 2, height - height * spectralCentroid);
+  scale(spectralCentroid);
 
   player.move();
   if (floorList[0].isOverFlow()) {
@@ -179,17 +193,8 @@ function update() {
 function draw() {
   background('#5C94FC');
 
-  // 檢測音調
-  const spectrum = fft.analyze();
-  const frequencyVal = fft.getCentroid();
-  frequencyBar.val = map(frequencyVal, 0, 5000, 0, 20);
-  const spectralCentroid = map(frequencyVal, 0, 5000, 1, 1.1);
-  textAlign(LEFT);
-  text(round(fft.getCentroid()) + 'hz', 10, 160);
-  translate((width - width * spectralCentroid) / 2, height - height * spectralCentroid);
-  scale(spectralCentroid);
-
   // 音譜圖
+  const spectrum = fft.analyze();
   for (let i = 0; i < spectrum.length; i++) {
     let x = map(log(i), 0, log(spectrum.length), 0, width);
     let h = map(spectrum[i], 0, 255, 0, height);
@@ -200,9 +205,17 @@ function draw() {
   // 繪製地板
   floorList.forEach((floor) => floor.draw());
   barList.forEach((bar) => bar.draw());
+  // 繪製玩家
   player.draw();
+
+  if (!start) {
+    background('#80808090');
+    text('Click to Paly', width / 2, height / 2);
+    return;
+  }
 }
 
 function mousePressed() {
+  start = true;
   userStartAudio();
 }
