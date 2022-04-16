@@ -128,6 +128,7 @@ let art1;
 let scaleSize = 32;
 
 function preload() {
+  userStartAudio();
   art1 = loadImage('src/assets/art1.png');
 }
 
