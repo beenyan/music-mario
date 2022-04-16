@@ -128,7 +128,6 @@ let art1;
 let scaleSize = 32;
 
 function preload() {
-  userStartAudio();
   art1 = loadImage('src/assets/art1.png');
 }
 
@@ -202,4 +201,8 @@ function draw() {
   floorList.forEach((floor) => floor.draw());
   barList.forEach((bar) => bar.draw());
   player.draw();
+}
+
+function mousePressed() {
+  userStartAudio();
 }
