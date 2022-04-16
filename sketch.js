@@ -171,8 +171,6 @@ function update() {
   const frequencyVal = fft.getCentroid();
   frequencyBar.val = map(frequencyVal, 0, 5000, 0, 20);
   const spectralCentroid = map(frequencyVal, 0, 5000, 1, 1.1);
-  textAlign(LEFT);
-  text(round(fft.getCentroid()) + 'hz', 10, 160);
   translate((width - width * spectralCentroid) / 2, height - height * spectralCentroid);
   scale(spectralCentroid);
 
@@ -194,6 +192,8 @@ function draw() {
   background('#5C94FC');
 
   // 音譜圖
+  textAlign(LEFT);
+  text(round(fft.getCentroid()) + 'hz', 10, 160);
   const spectrum = fft.analyze();
   for (let i = 0; i < spectrum.length; i++) {
     let x = map(log(i), 0, log(spectrum.length), 0, width);
